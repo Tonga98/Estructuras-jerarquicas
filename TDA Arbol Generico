@@ -1,0 +1,823 @@
+//NODO ARBOL GENERICO
+public class NodoGen {
+
+    //Atributos
+    private Object elem;
+    private NodoGen hijoIzquierdo;
+    private NodoGen hermanoDerecho;
+
+    //Constructor
+    public NodoGen(Object elemento, NodoGen hI, NodoGen hD){
+        this.elem = elemento;
+        this.hijoIzquierdo = hI;
+        this.hermanoDerecho = hD;
+    }
+    //Propios del tipo
+    public Object getElem(){
+        return this.elem;
+    }
+    public NodoGen getHijoIzquierdo(){
+        return this.hijoIzquierdo;
+    }
+    public NodoGen getHermanoDerecho(){
+        return this.hermanoDerecho;
+    }
+    public void setElem(Object elemento){
+        this.elem = elemento;
+    }
+    public void setHijoIzquierdo(NodoGen hI){
+        this.hijoIzquierdo = hI;
+    }
+    public void setHermanoDerecho(NodoGen hD){
+        this.hermanoDerecho = hD;
+    }
+}
+
+//ARBOL GENERICO
+public class ArbolGen {
+    //Atributos
+    private NodoGen raiz;
+
+    //Constructor
+    public void ArbolGen() {
+        this.raiz = null;
+    }
+
+    //De tipo
+    public boolean insertar(Object elemento, Object padre) {
+        //Este metodo inserta el elemento recibido como hijo del elemento padre recibido, retorna true en caso exitoso
+        //o false en caso contrario
+
+        //Declaracion de variables
+        boolean resultado;
+
+        //Asignacion de variables y ejecucion
+        if (this.raiz == null) {
+            this.raiz = new NodoGen(elemento, null, null);
+            resultado = true;
+        } else {
+            resultado = insertarAux(padre, this.raiz, elemento);
+        }
+        return resultado;
+    }
+
+    private boolean insertarAux(Object padre, NodoGen nodo, Object hijo) {
+        //Este metodo recursivo recorrera t odo el arbol hasta encontrar el elemento recibido, en caso de encontrarlo
+        //retorna true, en caso contrario retorana false
+
+        //Declaracion de variables
+        boolean resultado = false;
+
+        //Asignacion de variables y ejecucion
+        if ((nodo != null)) {
+            if (nodo.getElem().equals(padre)) {
+                resultado = true;
+                nodo.setHijoIzquierdo(new NodoGen(hijo, null, nodo.getHijoIzquierdo()));
+            } else {
+                if (nodo.getHijoIzquierdo() != null) {
+                    resultado = insertarAux(padre, nodo.getHijoIzquierdo(), hijo);
+                }
+                if (nodo.getHermanoDerecho() != null && !resultado) {
+                    resultado = insertarAux(padre, nodo.getHermanoDerecho(), hijo);
+                }
+            }
+        }
+        return resultado;
+    }
+
+    public boolean esVacio() {
+        return this.raiz == null;
+    }
+
+    public boolean pertenece(Object elemento) {
+        //Este modulo retorna true si el elemento recibido por parametro pertenece al arbol o false en caso contrario
+
+        //Declaracion de variables
+        boolean resultado = false;
+
+        //Asignacion de variables y ejecucion
+        if (this.raiz != null) {
+            resultado = perteneceAux(this.raiz, elemento);
+        }
+        return resultado;
+    }
+
+    private boolean perteneceAux(NodoGen nodo, Object elemento) {
+        //Este metodo recurisvo retorna true si el elemento recibido por parametro pertenece al arbol o false en caso contrario
+
+        //Declaracion de variables
+        boolean resultado = false;
+
+        //Asignacion de variables y ejecucion
+        if ((nodo != null)) {
+            if (nodo.getElem().equals(elemento)) {
+                resultado = true;
+            } else {
+                if (nodo.getHijoIzquierdo() != null) {
+                    resultado = perteneceAux(nodo.getHijoIzquierdo(), elemento);
+                }
+                if (nodo.getHermanoDerecho() != null && !resultado) {
+                    resultado = perteneceAux(nodo.getHermanoDerecho(), elemento);
+                }
+            }
+        }
+        return resultado;
+    }
+
+    public Lista ancestros(Object elemento) {
+        //Este modulo retorna una lista con el camino hasta el elemento recibido, en caso de que el elemento no se encuentre
+        //retorna lista vacia
+
+        //Declaracion de variables
+        Lista lista = new Lista();
+
+        //Asginacion de variables y ejecucion
+        if (this.raiz != null) {
+            ancestrosAux(this.raiz, lista, elemento);
+        }
+        return lista;
+    }
+
+    private boolean ancestrosAux(NodoGen nodo, Lista lista, Object elemento) {
+        //Este modulo recorre el arbol hasta encontrar el elemento recibido y guarda su camino en una lista
+
+        //Declaracion de variables
+        boolean encontrado = false;
+        boolean esHermano = false;
+        //Ejecucion
+        if (nodo != null) {
+            if (nodo.getElem().equals(elemento)) {
+                encontrado = true;
+            } else {
+                if (nodo.getHijoIzquierdo() != null) {
+                    encontrado = ancestrosAux(nodo.getHijoIzquierdo(), lista, elemento);
+                }
+                if (!encontrado && nodo.getHermanoDerecho() != null) {
+                    esHermano = true;
+                    encontrado = ancestrosAux(nodo.getHermanoDerecho(), lista, elemento);
+                }
+                if (encontrado && !esHermano) {
+                    lista.insertar(nodo.getElem(), 1);
+                }
+            }
+
+        }
+        return encontrado;
+    }
+
+    public int altura() {
+        //Este metodo retorna la altura del arbol, la longitud mas larga desde la raiz hasta una hoja
+
+        //Declaracion de variables
+        int altura = -1;
+
+        //Asignacion de variables y ejecucion
+        if (this.raiz != null) {
+            altura = alturaAux(this.raiz, 0, 0);
+        }
+        return altura;
+    }
+
+    private int alturaAux(NodoGen nodo, int altura, int nivel) {
+        //Este metodo recursivo recorre todos los caminos del arbol y retorna el camino de mayor longitud
+
+        //Declaracion de variables
+        int resultadoAux = 0;
+
+        //Ejecucion
+        if (nodo != null) {
+            if (nodo.getHijoIzquierdo() != null) {
+                altura = alturaAux(nodo.getHijoIzquierdo(), altura + 1, nivel + 1);
+                resultadoAux = altura;
+            }
+            if (nodo.getHermanoDerecho() != null) {
+                if (nivel != altura) {
+                    altura = nivel;
+                }
+                altura = alturaAux(nodo.getHermanoDerecho(), altura, nivel);
+            }
+            if (resultadoAux > altura) {
+                altura = resultadoAux;
+            }
+        }
+        return altura;
+    }
+
+    public int nivel(Object elemento) {
+        //Este metodo retorna el nivel del elemento recibido
+
+        //Declaracion de variables
+        int nivel = ancestros(elemento).longitud();
+
+        //Asignacion de variables y ejecucion
+        if (nivel == 0 && !(elemento.equals(this.raiz.getElem()))) {
+            nivel = -1;
+        }
+        return nivel;
+    }
+
+    public String toString() {
+        return toStringAux(this.raiz);
+    }
+
+    private String toStringAux(NodoGen n) {
+        String s = "";
+        if (n != null) {
+            s += n.getElem().toString() + " ->";
+            NodoGen hijo = n.getHijoIzquierdo();
+            while (hijo != null) {
+                s += hijo.getElem().toString() + ", ";
+                hijo = hijo.getHermanoDerecho();
+            }
+            hijo = n.getHijoIzquierdo();
+            while (hijo != null) {
+                s += "\n" + toStringAux(hijo);
+                hijo = hijo.getHermanoDerecho();
+            }
+        }
+        return s;
+    }
+
+    public Object padre(Object hijo) {
+        //Este metodo retorna el padre del nodo recibido por parametro
+
+        //Declaracion de variables
+        Object elementoPadre = null;
+
+        //Ejecucion
+        if (this.raiz != null) {
+            elementoPadre = padreAux(this.raiz.getHijoIzquierdo(), hijo, this.raiz);
+        }
+        return elementoPadre;
+
+    }
+
+    private Object padreAux(NodoGen nodoHijo, Object hijo, NodoGen nodoPadre) {
+        //Este metodo recursivo retrona el padre del elemento recibido
+
+        //Declaracion de variables
+        Object padre = null;
+
+        //Asignacion de variables y ejecucion
+        if (nodoHijo != null && this.raiz.getElem() != hijo) {
+            if (nodoHijo.getElem().equals(hijo)) {
+                padre = nodoPadre.getElem();
+            } else {
+                if (nodoHijo.getHijoIzquierdo() != null) {
+                    padre = padreAux(nodoHijo.getHijoIzquierdo(), hijo, nodoHijo);
+                }
+                if (nodoHijo.getHermanoDerecho() != null && padre == null) {
+                    padre = padreAux(nodoHijo.getHermanoDerecho(), hijo, nodoPadre);
+                }
+            }
+        }
+        return padre;
+    }
+
+    public Lista listarInorden() {
+        //Este metodo retorna una lista con el arbol in orden
+
+        //Declaracion de variables
+        Lista salida = new Lista();
+        listarInordenAux(this.raiz, salida);
+
+        return salida;
+    }
+
+    private void listarInordenAux(NodoGen n, Lista ls) {
+        //Este metodo recursivo guarda los elementos en in orden en la lista recibida
+
+        //Ejecucion
+        if (n != null) {
+            if (n.getHijoIzquierdo() != null) {
+                listarInordenAux(n.getHijoIzquierdo(), ls);
+            }
+            ls.insertar(n.getElem(), ls.longitud() + 1);
+            if (n.getHijoIzquierdo() != null) {
+                NodoGen hijo = n.getHijoIzquierdo().getHermanoDerecho();
+                while (hijo != null) {
+                    listarInordenAux(hijo, ls);
+                    hijo = hijo.getHermanoDerecho();
+                }
+            }
+        }
+    }
+
+    public Lista listarPosorden() {
+        //Este metodo retorna una lista con el arbol pos orden
+
+        //Declaracion de variables
+        Lista salida = new Lista();
+        listarPosordenAux(this.raiz, salida);
+
+        return salida;
+    }
+
+    private void listarPosordenAux(NodoGen n, Lista ls) {
+        //Este metodo recursivo guarda los elementos en pos orden en la lista recibida
+
+        //Ejecucion
+        if (n != null) {
+            if (n.getHijoIzquierdo() != null) {
+                listarPosordenAux(n.getHijoIzquierdo(), ls);
+            }
+            if (n.getHijoIzquierdo() != null) {
+                NodoGen hijo = n.getHijoIzquierdo().getHermanoDerecho();
+                while (hijo != null) {
+                    listarPosordenAux(hijo, ls);
+                    hijo = hijo.getHermanoDerecho();
+                }
+            }
+            ls.insertar(n.getElem(), ls.longitud() + 1);
+        }
+    }
+
+    public Lista listarPreorden() {
+        //Este metodo retorna una lista con el arbol pre orden
+
+        //Declaracion de variables
+        Lista salida = new Lista();
+        listarPreordenAux(this.raiz, salida);
+
+        return salida;
+    }
+
+    private void listarPreordenAux(NodoGen n, Lista ls) {
+        //Este metodo recursivo guarda los elementos en pos orden en la lista recibida
+
+        //Ejecucion
+        if (n != null) {
+            ls.insertar(n.getElem(), ls.longitud() + 1);
+            if (n.getHijoIzquierdo() != null) {
+                listarPreordenAux(n.getHijoIzquierdo(), ls);
+            }
+            if (n.getHijoIzquierdo() != null) {
+                NodoGen hijo = n.getHijoIzquierdo().getHermanoDerecho();
+                while (hijo != null) {
+                    listarPreordenAux(hijo, ls);
+                    hijo = hijo.getHermanoDerecho();
+                }
+            }
+        }
+    }
+
+    public Lista listarPorNiveles() {
+        //Este metodo retorna una lista con el arbol pre orden
+
+        //Declaracion de variables
+        Lista salida = new Lista();
+        listarPorNivelesAux(this.raiz, salida);
+
+        return salida;
+    }
+
+    private void listarPorNivelesAux(NodoGen n, Lista ls) {
+        //Este metodo recursivo guarda los elementos en pos orden en la lista recibida
+
+        //Ejecucion
+        if (n != null) {
+            NodoGen hijo = n.getHijoIzquierdo();
+            if (n.getHermanoDerecho() != null) {
+                listarPorNivelesAux(n.getHermanoDerecho(), ls);
+            }
+            ls.insertar(n.getElem(), ls.longitud() + 1);
+            if (n.getHijoIzquierdo() != null && n.getHermanoDerecho() == null) {
+                ls.insertar(n.getHijoIzquierdo().getElem(), ls.longitud() + 1);
+                listarPorNivelesAux(n.getHijoIzquierdo(), ls);
+            }
+        }
+    }
+
+    public void vaciar() {
+        this.raiz = null;
+    }
+
+    public ArbolGen clone() {
+        //Este metodo retorna un clon del arbol this
+
+        //Declaracion de variables
+        ArbolGen arbolClon = new ArbolGen();
+
+        //Asignacion de variables y ejecucion
+        if (this.raiz != null) {
+            arbolClon.raiz = new NodoGen(this.raiz.getElem(), this.raiz.getHijoIzquierdo(), null);
+            cloneAux(this.raiz, arbolClon.raiz);
+        }
+        return arbolClon;
+    }
+
+    private void cloneAux(NodoGen nodoOriginal, NodoGen nodoNuevo) {
+        //Este metodo recursivo clona el arbol this
+        //nodoOriginal: Se refiere al nodo que va recorriendo el arbol original
+        //nodoNuevo: Se refiere al nodo del arbol nuevo
+
+        //Ejecucion
+        if (nodoOriginal != null) {
+            if (nodoOriginal.getHijoIzquierdo() != null) {
+                nodoNuevo.setHijoIzquierdo(new NodoGen(nodoOriginal.getHijoIzquierdo().getElem(), null, null));
+                cloneAux(nodoOriginal.getHijoIzquierdo(), nodoNuevo.getHijoIzquierdo());
+            }
+            if (nodoOriginal.getHermanoDerecho() != null) {
+                nodoNuevo.setHermanoDerecho(new NodoGen(nodoOriginal.getHermanoDerecho().getElem(), null, null));
+                cloneAux(nodoOriginal.getHermanoDerecho(), nodoNuevo.getHermanoDerecho());
+            }
+        }
+    }
+
+    public boolean sonFrontera(Lista unaLista) {
+        //Este modulo retorna true si la lista recibida corresponde a los elementos en la frontera del arbol y false en caso contrario
+        //unaLista: Se refiere a la lista de la cual se debe verificar si sus elementos corresponden a la frontera
+
+        //Declaracion de variables
+        Lista listaAux = new Lista();
+        Lista listaTotalHojas = new Lista();
+        boolean exito = false;
+
+        //Asignacion de variables y ejecucion
+        sonFronteraAux(this.raiz, listaAux, unaLista, listaTotalHojas);
+        if (listaTotalHojas.longitud() == listaAux.longitud()) {
+            exito = true;
+        }
+        return exito;
+    }
+
+    private void sonFronteraAux(NodoGen nodo, Lista listaAux, Lista unaLista, Lista listaTotalHojas) {
+        //Este modulo recursivo inserta todos los elementos frontera del arbol
+        //listaAux: Se refiere a la lista en la cual se insertaran los elementos frontera del arbol
+        //unaLista: Se refiere a la lista recibida orignalmente la cual hay que verficiar
+
+        //Declaracion de variables
+
+        //Ejecucion
+        if (nodo != null) {
+            if (nodo.getHijoIzquierdo() != null) {    //Si tengo hijo izquierdo entro
+                sonFronteraAux(nodo.getHijoIzquierdo(), listaAux, unaLista, listaTotalHojas);
+            } else if(estaEnLista(unaLista.clone(), nodo.getElem())){  //Si no tengo hijo izquierdo, es hoja, y si el elemento se encuentra en la lista original
+                listaAux.insertar(nodo.getElem(), 1);             //lo agrego a listaAux, listaTotalHojas siempre suma todas las hojas
+                listaTotalHojas.insertar(nodo.getElem(),1);
+            }else{
+                listaTotalHojas.insertar(nodo.getElem(),1);
+            }
+            if (nodo.getHermanoDerecho() != null) {
+                sonFronteraAux(nodo.getHermanoDerecho(), listaAux, unaLista, listaTotalHojas);
+            }
+        }
+    }
+
+    private boolean estaEnLista(Lista unaListaClon, Object elemento){
+        //Este metodo corrobora que el elemento recibido se encuentra en la lista recibida
+        //unaListaClon: Se refire a un clon de la lista original la cual contendria todos los elementos frontera del arbol
+        //elemento: Se refiere al elemento a corroborar que se encuentre en la lista
+
+        //Declaracion de variables
+        boolean encontrado=false;
+
+        //Asignacion de varriables y ejecucion
+        while(!encontrado && !unaListaClon.esVacia()){
+            if(elemento.equals(unaListaClon.recuperar(1))){
+                encontrado = true;
+            }else{
+                unaListaClon.eliminar(1);
+            }
+        }
+        return encontrado;
+    }
+
+    //Simulacro 2do parcial
+    public boolean verificarCamino(Lista unaLista){
+        //Este alg..
+
+
+        //Declaracion de variables
+        boolean resultado = true;
+
+        //Asignacion de variables y ejecucion
+        if(this.raiz != null){
+            resultado = verificarCaminoAux(this.raiz, unaLista);
+        }
+        return resultado;
+    }
+
+    private boolean verificarCaminoAux(NodoGen nodo, Lista unaLista){
+        //Este alg...
+
+        //declaracion de variables
+        boolean resultado = false;
+
+        //Asignacion de varialbes y ejecucion
+        if(nodo != null && !unaLista.esVacia()){
+            if(nodo.getHermanoDerecho() != null){
+                resultado = verificarCaminoAux(nodo.getHermanoDerecho(), unaLista);
+            }
+            if(nodo.getElem().equals(unaLista.recuperar(1)) && !resultado){
+                unaLista.eliminar(1);
+                if(nodo.getHijoIzquierdo() != null){
+                    resultado = verificarCaminoAux(nodo.getHijoIzquierdo(), unaLista);
+                }
+            }
+        }
+        if(unaLista.esVacia()){
+            resultado = true;
+        }
+        return resultado;
+    }
+
+    public Lista listarEntreNiveles(int niv1, int niv2){
+        //Este alg...
+
+        //Declaracion de variables
+        int nivActual = 0;
+        Lista ls = new Lista();
+
+        //Asign...
+        if(this.raiz != null){
+            listarAux(niv1, niv2, nivActual, ls, this.raiz);
+        }
+        return ls;
+    }
+    private void listarAux(int niv1, int niv2, int nivActual, Lista ls, NodoGen nodo){
+        //este alg...
+
+        //Asigfn..
+        if(nodo != null){
+            if(nivActual < niv2){
+                listarAux(niv1, niv2, nivActual+1, ls, nodo.getHijoIzquierdo());
+            }
+            if(nivActual >= niv1){
+                ls.insertar(nodo.getElem(), ls.longitud()+1);
+            }
+            if(nodo.getHijoIzquierdo() != null) {
+               NodoGen hijo = nodo.getHijoIzquierdo();
+                while (hijo.getHermanoDerecho() != null && nivActual < niv2) {
+                    listarAux(niv1, niv2, nivActual + 1, ls, hijo.getHermanoDerecho());
+                    hijo = hijo.getHermanoDerecho();
+                }
+            }
+        }
+    }
+    public boolean insertarEnPosicion(Object elem, Object padre, int pos){
+        //Este modulo inserta a elem como hijo (n°pos) de padre
+
+        //Declaracion de varibles
+        boolean exito = false;
+
+        //Ejecucion
+        if(this.raiz!=null){
+            exito = insertarEnPosAux(this.raiz, elem, padre, pos);
+        }
+        return exito;
+    }
+    private boolean insertarEnPosAux(NodoGen nodo, Object elem, Object padre, int pos){
+
+        //Declaracion de variables
+        boolean exito = false, seguir = true;
+        int posHijo = 1;
+
+        //Ejecucion
+        if(nodo != null)
+            if(nodo.getElem().equals(padre)){
+                exito = true;
+                NodoGen nodoAux = nodo.getHijoIzquierdo(), nuevoNodo = new NodoGen(elem,null,null);
+                if(nodoAux != null) {
+                    while ((posHijo < pos - 1) && seguir) {
+                        if (nodoAux.getHermanoDerecho() != null) {
+                            nodoAux = nodoAux.getHermanoDerecho();
+                            posHijo++;
+                        } else {
+                            seguir = false;
+                        }
+                    }
+                    if (seguir) {
+                        nuevoNodo.setHermanoDerecho(nodoAux.getHermanoDerecho());
+                    }
+                    nodoAux.setHermanoDerecho(nuevoNodo);
+                }else{
+                    nodo.setHijoIzquierdo(nuevoNodo);
+                }
+            }else{
+                if(nodo.getHijoIzquierdo() != null){
+                    exito = insertarEnPosAux(nodo.getHijoIzquierdo(), elem, padre, pos);
+                }
+                if((nodo.getHermanoDerecho() != null) && !exito){
+                    exito = insertarEnPosAux(nodo.getHermanoDerecho(), elem, padre, pos);
+                }
+            }
+        return exito;
+    }
+}
+
+//TEST ARBOL GENERICO
+package tdaArbolGen;
+
+    public class TestGenerico {
+
+        static String sOk = "\u001B[32m OK! \u001B[0m", sErr = " \u001B[31m ERROR \u001B[0m";
+        public static final String NEGRO = "\u001B[30m";
+        public static final String ROJO = "\u001B[31m";
+        public static final String VERDE = "\u001B[32m";
+        public static final String AMARILLO = "\u001B[33m";
+        public static final String AZUL = "\u001B[34m";
+        public static final String PURPLE = "\u001B[35m";
+        public static final String CYAN = "\u001B[36m";
+        public static final String BLANCO = "\u001B[37m";
+
+        public static final String ANSI_RED_BACKGROUND = "\u001B[41m";
+        public static final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
+        public static final String ANSI_YELLOW_BACKGROUND = "\u001B[43m";
+        public static final String ANSI_BLUE_BACKGROUND = "\u001B[44m";
+        public static final String ANSI_PURPLE_BACKGROUND = "\u001B[45m";
+        public static final String ANSI_CYAN_BACKGROUND = "\u001B[46m";
+        public static final String ANSI_WHITE_BACKGROUND = "\u001B[47m";
+
+        public static final String RESET = "\u001B[0m";
+
+        public static void main(String args[]) {
+
+            System.out.println(ANSI_CYAN_BACKGROUND + ROJO + "**************************************************************");
+            System.out.println(ANSI_CYAN_BACKGROUND + ROJO + "*                  Test Arbol Generico                        *");
+            System.out.println(ANSI_CYAN_BACKGROUND + ROJO + "**************************************************************" + "\n\n" + RESET);
+
+            ArbolGen a = new ArbolGen();
+            ArbolGen b = new ArbolGen();
+
+            System.out.println(ANSI_YELLOW_BACKGROUND + "--------------------------------------------------------------------------------------------------------"
+                    + "------------------------------------------------------------------------------------------" + RESET);
+            System.out.println("\n\n");
+
+            System.out.println("********************************");
+            System.out.println("*      Insercion basica        *");
+            System.out.println("********************************");
+
+            System.out.println("Checkeo si es vacio " + ((a.esVacio()) ? sOk : sErr));
+            System.out.println("Intento vaciar arbol vacio ");
+            a.vaciar();
+            System.out.println("Altura de arbol vacio:  " + a.altura());
+            System.out.println("Busco elemento inexistente en arbol vacio con pertenece."
+                    + "Tiene que dar " + sOk + " ---> " + ((!b.pertenece(20)) ? sOk : sErr));
+
+            System.out.println("Inserto el 10 en raiz " + ((a.insertar(10, 1)) ? sOk : sErr));
+            System.out.println("\n toString()  deberia dar:\n"
+                    + "\n        10"
+                    + "\n");
+            System.out.println(a.toString());
+            System.out.println("");
+
+            System.out.println("Altura de arbol solo con raiz:  " + a.altura());
+            System.out.println("Busco el nivel de raiz. Tiene que dar " + sOk + " --> " + (((int) a.nivel(10) == 0) ? sOk : sErr));
+            System.out.println("Inserto el 9 como hijo de 10 " + ((a.insertar(9, 10)) ? sOk : sErr));
+            System.out.println("\n toString()  deberia dar:\n"
+                    + "\n        10 "
+                    + "\n    +---+  "
+                    + "\n    |      "
+                    + "\n    9      "
+                    + "\n");
+            System.out.println(a.toString());
+            System.out.println("");
+
+            System.out.println("Busco el nivel de 9. Tiene que dar " + sOk + " --> " + (((int) a.nivel(9) == 1) ? sOk : sErr));
+            System.out.println("Inserto el 7 como hijo de 9 " + ((a.insertar(7, 9)) ? sOk : sErr));
+            System.out.println("Inserto el 3 como hijo de 9 " + ((a.insertar(3, 9)) ? sOk : sErr));
+            System.out.println("Altura de arbol deberia dar 2:  " + a.altura());
+            System.out.println("Busco el nivel de 3. Tiene que dar " + sOk + " --> " + (((int) a.nivel(3) == 2) ? sOk : sErr));
+            System.out.println("Inserto el 15 como hijo de 10 " + ((a.insertar(15, 10)) ? sOk : sErr));
+            System.out.println("Inserto el 12 como hijo de 15 " + ((a.insertar(12, 15)) ? sOk : sErr));
+            System.out.println("Inserto el 20 como hijo de 15 " + ((a.insertar(20, 15)) ? sOk : sErr));
+            System.out.println("Inserto el 22 como hijo de 15 " + ((a.insertar(22, 15)) ? sOk : sErr));
+            System.out.println("Inserto el 30 como hijo de 15 " + ((a.insertar(30, 15)) ? sOk : sErr));
+            System.out.println("Inserto el 40 como hijo de 30 " + ((a.insertar(40, 30)) ? sOk : sErr));
+            System.out.println("Inserto el 45 como hijo de 30 " + ((a.insertar(45, 30)) ? sOk : sErr));
+            System.out.println("Inserto el 55 como hijo de 30 " + ((a.insertar(55, 30)) ? sOk : sErr));
+            System.out.println("\n toString()  deberia dar: \n"
+                    + "\n                                10"
+                    + "\n                +---------------+------------+"
+                    + "\n                |                            |"
+                    + "\n                9                            15"
+                    + "\n            +---+---+              +-------+--+---+-------+"
+                    + "\n            |       |              |       |      |       |"
+                    + "\n            7       3              12     20     22       30"
+                    + "\n                                                     +-----+-----+"
+                    + "\n                                                     |     |     |"
+                    + "\n                                                     40    45    55"
+                    + "\n" + a.toString());
+            System.out.println("\n");
+            System.out.println("Inserto con padre inexistente. Tiene que dar " + sErr + " --> " + ((a.insertar(5, 50)) ? sOk : sErr));
+            System.out.println("Inserto elemento duplicado en pos valida. 10 como hijo de 3. Tiene que dar " + sOk + " --> " + ((a.insertar(10, 3)) ? sOk : sErr));
+            System.out.println("Checkeo si es vacio. Tiene que dar " + sErr + " --> " + ((a.esVacio()) ? sOk : sErr));
+            System.out.println("Altura de arbol deberia dar 3:  " + a.altura());
+
+            System.out.println("\n\n");
+            System.out.println(ANSI_YELLOW_BACKGROUND + "-------------------------------------------------------------------------------------------------------"
+                    + "-------------------------------------------------------------------------------------------" + RESET);
+
+            System.out.println("\n\n********************************");
+            System.out.println("*      Test de clonado         *");
+            System.out.println("********************************\n");
+
+            b = a.clone();
+            System.out.println("Altura de arbol clon:  " + b.altura());
+            System.out.println("\n CLON toString()  deberia dar: \n"
+                    + "\n                                10"
+                    + "\n                +---------------+------------+"
+                    + "\n                |                            |"
+                    + "\n                9                            15"
+                    + "\n            +---+---+              +-------+--+---+-------+"
+                    + "\n            |       |              |       |      |       |"
+                    + "\n            7       3              12     20     22       30"
+                    + "\n                    +                                +-----+-----+"
+                    + "\n                    |                                |     |     |"
+                    + "\n                   10                                40    45    55"
+                    + "\n" + b.toString());
+            System.out.println("\n");
+            System.out.println("Inserto el 25 como hijo de 20 en CLON" + ((b.insertar(25, 20)) ? sOk : sErr));
+            System.out.println("Inserto el 27 como hijo de 20 en CLON" + ((b.insertar(27, 20)) ? sOk : sErr));
+            System.out.println("Inserto el 35 como hijo de 20 en CLON" + ((b.insertar(35, 20)) ? sOk : sErr));
+            System.out.println("\n" + AZUL + "CLON toString() \t\t\n" + b.toString() + "\n\n");
+            System.out.println(VERDE + "ORIGINAL toString()\t\t\n " + a.toString() + "\n\n");
+
+            System.out.println("Vacio el CLON");
+            b.vaciar();
+            System.out.println("Busco al padre 20 en Arbol vacio. Tiene que dar " + sOk + " --> " + ((b.padre(20) == null) ? sOk : sErr));
+            System.out.println("Busco a 25 con pertenece. Tiene que dar " + sOk + " ---> " + ((!b.pertenece(20)) ? sOk : sErr));
+
+            System.out.println("\n\n");
+            System.out.println(ANSI_YELLOW_BACKGROUND + "----------------------------------------------------------------------------------------------------------"
+                    + "----------------------------------------------------------------------------------------" + RESET);
+            System.out.println("\n\n********************************");
+            System.out.println("*      Test de Busqueda         *");
+            System.out.println("********************************\n");
+            System.out.println("Busco al padre de 55. Tiene que dar " + sOk + " --> " + (((int) a.padre(55) == 30) ? sOk : sErr));
+            System.out.println("Busco al padre de 20. Tiene que dar " + sOk + " --> " + (((int) a.padre(20) == 15) ? sOk : sErr));
+            System.out.println("Busco al padre de raiz. Tiene que dar " + sOk + " --> " + ((a.padre(10) == null) ? sOk : sErr));
+            System.out.println("Busco al padre de elemento inexistente. Tiene que dar " + sErr + " --> " + ((a.padre(1011) != null) ? sOk : sErr));
+            System.out.println("Busco a raiz con pertenece. Tiene que dar " + sOk + " ---> " + ((a.pertenece(10)) ? sOk : sErr));
+            System.out.println("Busco a 55 con pertenece. Tiene que dar " + sOk + " ---> " + ((a.pertenece(55)) ? sOk : sErr));
+            System.out.println("Busco a 7 con pertenece. Tiene que dar " + sOk + " ---> " + ((a.pertenece(7)) ? sOk : sErr));
+            System.out.println("Busco elemento inexistente con pertenece. Tiene que dar " + sOk + " ---> " + ((!a.pertenece(200)) ? sOk : sErr));
+
+            System.out.println("Busco ancentros de raiz deberia dar vacio: " + a.ancestros(10).toString());
+            System.out.println("Busco ancentros de 3 deberia dar 10 - 9: " + a.ancestros(3).toString());
+            System.out.println("Busco ancentros de 40 deberia dar 10 - 15 - 30 : " + a.ancestros(40).toString());
+            System.out.println("Busco ancentros de elemento inexistente deberia dar vacio: " + a.ancestros(3333).toString());
+
+            System.out.println("\n\n");
+            System.out.println(ANSI_YELLOW_BACKGROUND + "----------------------------------------------------------------------------------------------------------"
+                    + "----------------------------------------------------------------------------------------" + RESET);
+            System.out.println("\n\n**********************************");
+            System.out.println("*        Test de Niveles         *");
+            System.out.println("**********************************\n");
+
+            System.out.println("Busco el nivel de raiz. Tiene que dar 0: " + sOk + " --> " + (((int) a.nivel(10) == 0) ? sOk : sErr));
+            System.out.println("Busco el nivel 3. Tiene que dar 2: " + sOk + " --> " + (((int) a.nivel(3) == 2) ? sOk : sErr));
+            System.out.println("Busco el nivel 20. Tiene que dar 2: " + sOk + " --> " + (((int) a.nivel(20) == 2) ? sOk : sErr));
+            System.out.println("Busco el nivel 9. Tiene que dar 1: " + sOk + " --> " + (((int) a.nivel(9) == 1) ? sOk : sErr));
+            System.out.println("Busco el nivel 22. Tiene que dar 2: " + sOk + " --> " + (((int) a.nivel(22) == 2) ? sOk : sErr));
+            System.out.println("Busco el nivel 45. Tiene que dar 3: " + sOk + " --> " + (((int) a.nivel(45) == 3) ? sOk : sErr));
+            System.out.println("Busco el nivel 55. Tiene que dar 3: " + sOk + " --> " + (((int) a.nivel(55) == 3) ? sOk : sErr));
+
+            System.out.println("Busco nivel de elemento inexistente: Tiene que dar -1: " + a.nivel(1000));
+
+            System.out.println("\n\n");
+            System.out.println(ANSI_YELLOW_BACKGROUND + "----------------------------------------------------------------------------------------------------------"
+                    + "----------------------------------------------------------------------------------------" + RESET);
+            System.out.println("\n\n**********************************");
+            System.out.println("*      Test de Recorridos        *");
+            System.out.println("**********************************\n");
+
+            System.out.println("\n toString()  deberia dar: \n"
+                    + "\n                                10"
+                    + "\n                +---------------+------------+"
+                    + "\n                |                            |"
+                    + "\n                9                            15"
+                    + "\n            +---+---+              +-------+--+---+-------+"
+                    + "\n            |       |              |       |      |       |"
+                    + "\n            7       3              12     20     22       30"
+                    + "\n                    +                                +-----+-----+"
+                    + "\n                    |                                |     |     |"
+                    + "\n                   10                                40    45    55"
+                    + "\n" + a.toString());
+            System.out.println("\n");
+            System.out.println("\n");
+            System.out.println("Recorrido en preOrden.\n Tiene que dar: "
+                    + "\n OP1 (si inserta al final)  [ 10 - 9 - 7 - 3 - 10 - 15 - 12 - 20 - 22 - 30 - 40 - 45 - 55]"
+                    + "\n OP2 (si inserta al ppio)   [ 10 - 15 - 30 - 55 - 45 - 40 - 22 - 20 - 12 - 9 - 3 - 10 - 7]"
+                    + "\n --> " + a.listarPreorden().toString());
+            System.out.println("\n");
+            System.out.println("Recorrido en posOrden.\n Tiene que dar: "
+                    + "\n OP1 (si inserta al final)  [ 7 - 10 - 3 - 9 - 12 - 20 - 22 - 40 - 45 - 55 - 30 - 15 - 10]  "
+                    + "\n OP2 (si inserta al ppio)   [ 55 - 45 - 40 - 30 - 22 - 20 - 12 - 15 - 10 - 3 - 7 - 9 - 10]  "
+                    + "\n --> " + a.listarPosorden().toString());
+            System.out.println("\n");
+            System.out.println("Recorrido en InOrden.\n Tiene que dar: "
+                    + "\n OP1 (si inserta al final)  [ 7 - 9 - 10 - 3 - 10 - 12 - 15 - 20 - 22 - 40 - 30 - 45 - 55]  "
+                    + "\n OP2 (si inserta al ppio)   [ 55 - 30 - 45 - 40 - 15 - 22 - 20 - 12 - 10 - 10 - 3 - 9 - 7]  "
+                    + "\n --> " + a.listarInorden().toString());
+            System.out.println("\n");
+            System.out.println("Recorrido por Niveles.\n Tiene que dar: "
+                    + "\n OP1 (si inserta al final)  [ 10 - 9 - 15 - 7 - 3 - 12 - 20 - 22 - 30 - 10 - 40 - 45 - 55]  "
+                    + "\n OP2 (si inserta al ppio)   [ 10 - 15 - 9 - 30 - 22 - 20 - 12 - 3 - 7 - 55 - 45 - 40 - 10]  "
+                    + "\n --> " + a.listarPorNiveles().toString());
+            System.out.println("\n");
+        }
+
+    }
+
