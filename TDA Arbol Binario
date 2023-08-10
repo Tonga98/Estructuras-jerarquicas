@@ -1,0 +1,284 @@
+//NODO ARBOL
+public class NodoArbol {
+    //Atributos
+    private Object elem;
+    private NodoArbol izquierdo;
+    private NodoArbol derecho;
+
+    //Constructor
+    public NodoArbol(Object elemento, NodoArbol elIzq, NodoArbol elDer){
+        this.elem = elemento;
+        this.derecho = elDer;
+        this.izquierdo = elIzq;
+    }
+    //Observadores
+    public Object getElem() {
+        return elem;
+    }
+    public NodoArbol getDerecho() {
+        return derecho;
+    }
+    public NodoArbol getIzquierdo() {
+        return izquierdo;
+    }
+
+    //Modificadores
+    public void setIzquierdo(NodoArbol izquierdo) {
+        this.izquierdo = izquierdo;
+    }
+    public void setDerecho(NodoArbol derecho) {
+        this.derecho = derecho;
+    }
+    public void setElem(Object elem) {
+        this.elem = elem;
+    }
+}
+
+//CLASE ARBOL
+public class ArbolBin {
+    //Atributos
+    private NodoArbol raiz;
+
+    //Constructor
+    public ArbolBin(){
+        this.raiz = null;
+    }
+
+    //De tipo
+    public boolean esVacio(){
+        return (this.raiz == null);
+    }
+    public boolean insertar(Object elemNuevo, Object elemPadre, char lugar){
+        //Este modulo inserta el nodo recibido como hijo del nodo padre recibido, en caso de no poder retorna false
+
+        //Declaracion de variables
+        boolean exito = true;
+        NodoArbol nPadre;
+
+        //Asignacion de variables y ejecucion
+        if(esVacio()){
+            this.raiz = new NodoArbol(elemNuevo, null, null);
+        }else{
+            nPadre = obtenerNodo(this.raiz, elemPadre);
+            if(nPadre != null){
+                if(lugar == 'i' && nPadre.getIzquierdo() == null){
+                    nPadre.setIzquierdo(new NodoArbol(elemNuevo, null, null));
+                }else if(lugar == 'd' && nPadre.getDerecho() == null){
+                    nPadre.setDerecho(new NodoArbol(elemNuevo, null,null));
+                }else{
+                    exito = false;
+                }
+            }
+        }
+        return exito;
+    }
+    private NodoArbol obtenerNodo(NodoArbol n, Object buscado){
+        //Este metodo busca y retorna el nodo que contiene el elemento buscado
+
+        //Declaracion de variables
+        NodoArbol resultado = null;
+
+        //Asignacion de variables y ejecucion
+        if (n != null) {
+            if (n.getElem().equals(buscado)) {
+                resultado = n;
+            }else{
+                resultado = obtenerNodo(n.getIzquierdo(), buscado);
+                if(resultado == null){
+                    resultado = obtenerNodo(n.getDerecho(), buscado);
+                }
+            }
+        }
+        return resultado;
+    }
+    public Object padre(Object elemBuscado){
+        //Este metodo retorna el elemento que posee el padre del elemento buscado
+
+        //Declaracion de variables
+        Object resultado;
+
+        //Asignacion de variables y ejecucion
+        resultado = obtenerNodoPadre(this.raiz, elemBuscado).getElem();
+        return resultado;
+    }
+    private NodoArbol obtenerNodoPadre(NodoArbol n, Object hijoBuscado){
+        //Este metodo busca y retorna el nodo padre del nodo que posee el elemento buscado
+
+        //Declaracion de variables
+        NodoArbol resultado = null;
+
+        //Asignacion de variables y ejecucion
+        if (n != null) {
+            if (n.getIzquierdo().getElem() == hijoBuscado || n.getDerecho().getElem() == hijoBuscado) {
+                resultado = n;
+            }else{
+                resultado = obtenerNodo(n.getIzquierdo(), hijoBuscado);
+                if(resultado == null){
+                    resultado = obtenerNodo(n.getDerecho(), hijoBuscado);
+                }
+            }
+        }
+        return resultado;
+    }
+    public int altura() {
+        //Este metodo retorna la altura del arbol
+
+        //Declacracion de variables
+        int altura=-1;
+
+        //Asignacion de variables y ejecucion
+        if(!esVacio()){
+            altura =0;
+            altura = obteneraltura(this.raiz,altura);
+        }
+        return altura;
+    }
+    private int obteneraltura(NodoArbol n, int altura){
+        //Este metodo busca y retorna el nodo que contiene el elemento buscado
+
+        //Declaracion de variables
+        int resultadoIzq, resultadoDer;
+
+        //Asignacion de variables y ejecucion
+        if (n != null) {
+                resultadoIzq = obteneraltura(n.getIzquierdo(), altura+1);
+                resultadoDer = obteneraltura(n.getDerecho(), altura+1);
+                if(n.getDerecho() == null && n.getIzquierdo() == null){
+                    resultadoIzq--;
+                    resultadoDer--;
+                }
+                if(resultadoDer >= resultadoIzq){
+                    altura = resultadoDer;
+                }else{
+                    altura = resultadoIzq;
+                }
+        }
+        return altura;
+    }
+    public int nivel(Object elemento){
+        //Este modulo retorna el nivel del elemento recibido, en caso de no encontrarlo retorna -1
+
+        //Declaracion de variables
+        int nivel=-1;
+
+        //Asignacion de variables y ejecucion
+        if(!esVacio()){
+            nivel = obtenerNivel(this.raiz,elemento, 0);
+        }
+        return nivel;
+    }
+    private int obtenerNivel(NodoArbol n, Object buscado, int nivel) {
+        //Este modulo retorna el nivel del elemento recibido, en caso de no encontrarlo retorna -1
+
+        //Declaracion de variables
+        int nivelAux = -1;
+
+        //Asignacion de variables y ejecucion
+        if (n != null) {
+            if (n.getElem().equals(buscado)) {
+                nivelAux = nivel;
+            } else {
+                nivelAux = obtenerNivel(n.getIzquierdo(), buscado, nivel + 1);
+                if (nivelAux == -1) {
+                    nivelAux = obtenerNivel(n.getDerecho(), buscado, nivel + 1);
+                }
+            }
+        }
+        return nivelAux;
+    }
+    public boolean verificarPatron(Lista patron){
+        //Este modulo retorna true si la lista recibida corresponde a un patron desde raiz a una hoja.
+
+        //Declaracion de variables
+        boolean exito=false;
+
+        //Asginacion de variables y ejecucion
+        if(this.raiz.getElem().equals(patron.recuperar(1))){
+            patron.eliminar(1);
+            exito = verificarPatronAux(this.raiz, patron);
+        }
+        return exito;
+    }
+    private boolean verificarPatronAux(NodoArbol nodo, Lista patron){
+
+        //Ejecucion
+        if(nodo!=null){
+            if(nodo.getIzquierdo() != null && nodo.getIzquierdo().getElem().equals(patron.recuperar(1))){
+                patron.eliminar(1);
+                 verificarPatronAux(nodo.getIzquierdo(), patron);
+            }else if((nodo.getDerecho() != null && nodo.getDerecho().getElem().equals(patron.recuperar(1)))){
+                patron.eliminar(1);
+                 verificarPatronAux(nodo.getDerecho(), patron);
+            }
+        }
+        return (patron.esVacia());
+    }
+    public Lista frontera(){
+        Lista lista = new Lista();
+        fronteraAux(lista, this.raiz);
+        return lista;
+    }
+    private void fronteraAux(Lista lista, NodoArbol nodo){
+        if(nodo != null){
+            if(nodo.getIzquierdo() == null && nodo.getDerecho() == null){
+                lista.insertar(nodo.getElem(),1);
+            }
+            if(nodo.getDerecho() != null){
+                fronteraAux(lista, nodo.getDerecho());
+            }
+            if(nodo.getIzquierdo() != null){
+                fronteraAux(lista, nodo.getIzquierdo());
+            }
+        }
+    }
+    public void completarHijos(){
+        completarHijosAux(this.raiz);
+    }
+    private void completarHijosAux(NodoArbol nodo){
+        if (nodo != null) {
+            if(nodo.getIzquierdo()!=null){
+                if (nodo.getDerecho() != null) {
+                    completarHijosAux(nodo.getIzquierdo());
+                }else{
+                    nodo.setDerecho(new NodoArbol(nodo.getIzquierdo().getElem(),null, null));
+                    completarHijosAux(nodo.getIzquierdo());
+                }
+            }
+            if(nodo.getDerecho()!=null){
+                if (nodo.getIzquierdo() != null) {
+                    completarHijosAux(nodo.getDerecho());
+                }else{
+                    nodo.setIzquierdo(new NodoArbol(nodo.getDerecho().getElem(),null, null));
+                    completarHijosAux(nodo.getDerecho());
+                }
+            }
+        }
+    }
+    public String toString(){
+        //preorden
+        String cadena="";
+        if(this.raiz!=null){
+            cadena=toStringAux(this.raiz);
+        }
+        return cadena;
+    }
+    private String toStringAux(NodoArbol nodo){
+        String laCadena="";
+        if(nodo!=null){
+            laCadena+=" Nodo: "+nodo.getElem();
+            if(nodo.getIzquierdo()!=null){
+                laCadena+=" HI: "+nodo.getIzquierdo().getElem();
+            }else{
+                laCadena+=" HI: -";
+            }
+            laCadena+=" HD: ";
+            if(nodo.getDerecho()!=null){
+                laCadena+=nodo.getDerecho().getElem();
+            }else{
+                laCadena+="-";
+            }
+            laCadena+="\n"+toStringAux(nodo.getIzquierdo())+toStringAux(nodo.getDerecho());
+        }
+        return laCadena;
+    }
+}
